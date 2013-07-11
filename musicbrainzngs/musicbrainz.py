@@ -92,8 +92,8 @@ VALID_BROWSE_INCLUDES = {
 
 #: These can be used to filter whenever releases are includes or browsed
 VALID_RELEASE_TYPES = [
-	"nat", "album", "single", "ep", "compilation", "soundtrack", "spokenword",
-	"interview", "audiobook", "live", "remix", "other"
+    "nat", "album", "single", "ep", "compilation", "soundtrack", "spokenword",
+    "interview", "audiobook", "live", "remix", "other"
 ]
 #: These can be used to filter whenever releases or release-groups are involved
 VALID_RELEASE_STATUSES = ["official", "promotion", "bootleg", "pseudo-release"]
@@ -141,62 +141,62 @@ VALID_SEARCH_FIELDS = {
 # Exceptions.
 
 class MusicBrainzError(Exception):
-	"""Base class for all exceptions related to MusicBrainz."""
-	pass
+    """Base class for all exceptions related to MusicBrainz."""
+    pass
 
 class UsageError(MusicBrainzError):
-	"""Error related to misuse of the module API."""
-	pass
+    """Error related to misuse of the module API."""
+    pass
 
 class InvalidSearchFieldError(UsageError):
-	pass
+    pass
 
 class InvalidIncludeError(UsageError):
-	def __init__(self, msg='Invalid Includes', reason=None):
-		super(InvalidIncludeError, self).__init__(self)
-		self.msg = msg
-		self.reason = reason
+    def __init__(self, msg='Invalid Includes', reason=None):
+        super(InvalidIncludeError, self).__init__(self)
+        self.msg = msg
+        self.reason = reason
 
-	def __str__(self):
-		return self.msg
+    def __str__(self):
+        return self.msg
 
 class InvalidFilterError(UsageError):
-	def __init__(self, msg='Invalid Includes', reason=None):
-		super(InvalidFilterError, self).__init__(self)
-		self.msg = msg
-		self.reason = reason
+    def __init__(self, msg='Invalid Includes', reason=None):
+        super(InvalidFilterError, self).__init__(self)
+        self.msg = msg
+        self.reason = reason
 
-	def __str__(self):
-		return self.msg
+    def __str__(self):
+        return self.msg
 
 class WebServiceError(MusicBrainzError):
-	"""Error related to MusicBrainz API requests."""
-	def __init__(self, message=None, cause=None):
-		"""Pass ``cause`` if this exception was caused by another
-		exception.
-		"""
-		self.message = message
-		self.cause = cause
+    """Error related to MusicBrainz API requests."""
+    def __init__(self, message=None, cause=None):
+        """Pass ``cause`` if this exception was caused by another
+        exception.
+        """
+        self.message = message
+        self.cause = cause
 
-	def __str__(self):
-		if self.message:
-			msg = "%s, " % self.message
-		else:
-			msg = ""
-		msg += "caused by: %s" % str(self.cause)
-		return msg
+    def __str__(self):
+        if self.message:
+            msg = "%s, " % self.message
+        else:
+            msg = ""
+        msg += "caused by: %s" % str(self.cause)
+        return msg
 
 class NetworkError(WebServiceError):
-	"""Problem communicating with the MB server."""
-	pass
+    """Problem communicating with the MB server."""
+    pass
 
 class ResponseError(WebServiceError):
-	"""Bad response sent by the MB server."""
-	pass
+    """Bad response sent by the MB server."""
+    pass
 
 class AuthenticationError(WebServiceError):
-	"""Received a HTTP 401 response while accessing a protected resource."""
-	pass
+    """Received a HTTP 401 response while accessing a protected resource."""
+    pass
 
 
 # Helpers for validating and formatting allowed sets.
@@ -209,9 +209,9 @@ def _check_includes(entity, inc):
     _check_includes_impl(inc, VALID_INCLUDES[entity])
 
 def _check_filter(values, valid):
-	for v in values:
-		if v not in valid:
-			raise InvalidFilterError(v)
+    for v in values:
+        if v not in valid:
+            raise InvalidFilterError(v)
 
 def _check_filter_and_make_params(entity, includes, release_status=[], release_type=[]):
     """Check that the status or type values are valid. Then, check that
@@ -259,17 +259,17 @@ def _docstring(entity, browse=False):
 # Global authentication and endpoint details.
 
 user = password = ""
-hostname = "musicbrainz.org"
+_hostname = "musicbrainz.org"
 _client = ""
 _useragent = ""
 
 def auth(u, p):
-	"""Set the username and password to be used in subsequent queries to
-	the MusicBrainz XML API that require authentication.
-	"""
-	global user, password
-	user = u
-	password = p
+    """Set the username and password to be used in subsequent queries to
+    the MusicBrainz XML API that require authentication.
+    """
+    global user, password
+    user = u
+    password = p
 
 def set_useragent(app, version, contact=None):
     """Set the User-Agent to be used for requests to the MusicBrainz webservice.
@@ -287,8 +287,8 @@ def set_useragent(app, version, contact=None):
 def set_hostname(new_hostname):
     """Set the base hostname for MusicBrainz webservice requests.
     Defaults to 'musicbrainz.org'."""
-    global hostname
-    hostname = new_hostname
+    global _hostname
+    _hostname = new_hostname
 
 # Rate limiting.
 
@@ -367,19 +367,19 @@ class _rate_limit(object):
 
 # From pymb2
 class _RedirectPasswordMgr(compat.HTTPPasswordMgr):
-	def __init__(self):
-		self._realms = { }
+    def __init__(self):
+        self._realms = { }
 
-	def find_user_password(self, realm, uri):
-		# ignoring the uri parameter intentionally
-		try:
-			return self._realms[realm]
-		except KeyError:
-			return (None, None)
+    def find_user_password(self, realm, uri):
+        # ignoring the uri parameter intentionally
+        try:
+            return self._realms[realm]
+        except KeyError:
+            return (None, None)
 
-	def add_password(self, realm, uri, username, password):
-		# ignoring the uri parameter intentionally
-		self._realms[realm] = (username, password)
+    def add_password(self, realm, uri, username, password):
+        # ignoring the uri parameter intentionally
+        self._realms[realm] = (username, password)
 
 class _DigestAuthHandler(compat.HTTPDigestAuthHandler):
     def get_authorization (self, req, chal):
@@ -413,265 +413,271 @@ class _DigestAuthHandler(compat.HTTPDigestAuthHandler):
         return H, KD
 
 class _MusicbrainzHttpRequest(compat.Request):
-	""" A custom request handler that allows DELETE and PUT"""
-	def __init__(self, method, url, data=None):
-		compat.Request.__init__(self, url, data)
-		allowed_m = ["GET", "POST", "DELETE", "PUT"]
-		if method not in allowed_m:
-			raise ValueError("invalid method: %s" % method)
-		self.method = method
+    """ A custom request handler that allows DELETE and PUT"""
+    def __init__(self, method, url, data=None):
+        compat.Request.__init__(self, url, data)
+        allowed_m = ["GET", "POST", "DELETE", "PUT"]
+        if method not in allowed_m:
+            raise ValueError("invalid method: %s" % method)
+        self.method = method
 
-	def get_method(self):
-		return self.method
+    def get_method(self):
+        return self.method
 
 
 # Core (internal) functions for calling the MB API.
 
 def _safe_read(opener, req, body=None, max_retries=8, retry_delay_delta=2.0):
-	"""Open an HTTP request with a given URL opener and (optionally) a
-	request body. Transient errors lead to retries.  Permanent errors
-	and repeated errors are translated into a small set of handleable
-	exceptions. Return a bytestring.
-	"""
-	last_exc = None
-	for retry_num in range(max_retries):
-		if retry_num: # Not the first try: delay an increasing amount.
-			_log.debug("retrying after delay (#%i)" % retry_num)
-			time.sleep(retry_num * retry_delay_delta)
+    """Open an HTTP request with a given URL opener and (optionally) a
+    request body. Transient errors lead to retries.  Permanent errors
+    and repeated errors are translated into a small set of handleable
+    exceptions. Return a bytestring.
+    """
+    last_exc = None
+    for retry_num in range(max_retries):
+        if retry_num: # Not the first try: delay an increasing amount.
+            _log.debug("retrying after delay (#%i)" % retry_num)
+            time.sleep(retry_num * retry_delay_delta)
 
-		try:
-			if body:
-				f = opener.open(req, body)
-			else:
-				f = opener.open(req)
-			return f.read()
+        try:
+            if body:
+                f = opener.open(req, body)
+            else:
+                f = opener.open(req)
+            return f.read()
 
-		except compat.HTTPError as exc:
-			if exc.code in (400, 404, 411):
-				# Bad request, not found, etc.
-				raise ResponseError(cause=exc)
-			elif exc.code in (503, 502, 500):
-				# Rate limiting, internal overloading...
-				_log.debug("HTTP error %i" % exc.code)
-			elif exc.code in (401, ):
-				raise AuthenticationError(cause=exc)
-			else:
-				# Other, unknown error. Should handle more cases, but
-				# retrying for now.
-				_log.debug("unknown HTTP error %i" % exc.code)
-			last_exc = exc
-		except compat.BadStatusLine as exc:
-			_log.debug("bad status line")
-			last_exc = exc
-		except compat.HTTPException as exc:
-			_log.debug("miscellaneous HTTP exception: %s" % str(exc))
-			last_exc = exc
-		except compat.URLError as exc:
-			if isinstance(exc.reason, socket.error):
-				code = exc.reason.errno
-				if code == 104: # "Connection reset by peer."
-					continue
-			raise NetworkError(cause=exc)
-		except socket.timeout as exc:
-			_log.debug("socket timeout")
-			last_exc = exc
-		except socket.error as exc:
-			if exc.errno == 104:
-				continue
-			raise NetworkError(cause=exc)
-		except IOError as exc:
-			raise NetworkError(cause=exc)
+        except compat.HTTPError as exc:
+            if exc.code in (400, 404, 411):
+                # Bad request, not found, etc.
+                raise ResponseError(cause=exc)
+            elif exc.code in (503, 502, 500):
+                # Rate limiting, internal overloading...
+                _log.debug("HTTP error %i" % exc.code)
+            elif exc.code in (401, ):
+                raise AuthenticationError(cause=exc)
+            else:
+                # Other, unknown error. Should handle more cases, but
+                # retrying for now.
+                _log.debug("unknown HTTP error %i" % exc.code)
+            last_exc = exc
+        except compat.BadStatusLine as exc:
+            _log.debug("bad status line")
+            last_exc = exc
+        except compat.HTTPException as exc:
+            _log.debug("miscellaneous HTTP exception: %s" % str(exc))
+            last_exc = exc
+        except compat.URLError as exc:
+            if isinstance(exc.reason, socket.error):
+                code = exc.reason.errno
+                if code == 104: # "Connection reset by peer."
+                    continue
+            raise NetworkError(cause=exc)
+        except socket.timeout as exc:
+            _log.debug("socket timeout")
+            last_exc = exc
+        except socket.error as exc:
+            if exc.errno == 104:
+                continue
+            raise NetworkError(cause=exc)
+        except IOError as exc:
+            raise NetworkError(cause=exc)
 
-	# Out of retries!
-	raise NetworkError("retried %i times" % max_retries, last_exc)
+    # Out of retries!
+    raise NetworkError("retried %i times" % max_retries, last_exc)
 
 # Get the XML parsing exceptions to catch. The behavior chnaged with Python 2.7
 # and ElementTree 1.3.
 if hasattr(etree, 'ParseError'):
-	ETREE_EXCEPTIONS = (etree.ParseError, expat.ExpatError)
+    ETREE_EXCEPTIONS = (etree.ParseError, expat.ExpatError)
 else:
-	ETREE_EXCEPTIONS = (expat.ExpatError)
+    ETREE_EXCEPTIONS = (expat.ExpatError)
 
 @_rate_limit
 def _mb_request(path, method='GET', auth_required=False, client_required=False,
-				args=None, data=None, body=None):
-	"""Makes a request for the specified `path` (endpoint) on /ws/2 on
-	the globally-specified hostname. Parses the responses and returns
-	the resulting object.  `auth_required` and `client_required` control
-	whether exceptions should be raised if the client and
-	username/password are left unspecified, respectively.
-	"""
-	if args is None:
-		args = {}
-	else:
-		args = dict(args) or {}
+                args=None, data=None, body=None, client=None, hostname=None, useragent=None):
+    """Makes a request for the specified `path` (endpoint) on /ws/2 on
+    the globally-specified hostname. Parses the responses and returns
+    the resulting object.  `auth_required` and `client_required` control
+    whether exceptions should be raised if the client and
+    username/password are left unspecified, respectively.
+    """
+    if args is None:
+        args = {}
+    else:
+        args = dict(args) or {}
+    if not useragent and not _useragent:
+        raise UsageError("set a proper user-agent with "
+                         "set_useragent(\"application name\", \"application version\", \"contact info (preferably URL or email for your application)\")")
 
-	if _useragent == "":
-		raise UsageError("set a proper user-agent with "
-						 "set_useragent(\"application name\", \"application version\", \"contact info (preferably URL or email for your application)\")")
+    if client_required:
+        args["client"] = client if client else _client
 
-	if client_required:
-		args["client"] = _client
+    # Encode Unicode arguments using UTF-8.
+    for key, value in args.items():
+        if isinstance(value, compat.unicode):
+            args[key] = value.encode('utf8')
 
-	# Encode Unicode arguments using UTF-8.
-	for key, value in args.items():
-		if isinstance(value, compat.unicode):
-			args[key] = value.encode('utf8')
+    # Construct the full URL for the request, including hostname and
+    # query string.
+    url = compat.urlunparse((
+        'http',
+        hostname if hostname else _hostname,
+        '/ws/2/%s' % path,
+        '',
+        compat.urlencode(args),
+        ''
+    ))
+    _log.debug("%s request for %s" % (method, url))
 
-	# Construct the full URL for the request, including hostname and
-	# query string.
-	url = compat.urlunparse((
-		'http',
-		hostname,
-		'/ws/2/%s' % path,
-		'',
-		compat.urlencode(args),
-		''
-	))
-	_log.debug("%s request for %s" % (method, url))
+    # Set up HTTP request handler and URL opener.
+    httpHandler = compat.HTTPHandler(debuglevel=0)
+    handlers = [httpHandler]
 
-	# Set up HTTP request handler and URL opener.
-	httpHandler = compat.HTTPHandler(debuglevel=0)
-	handlers = [httpHandler]
+    # Add credentials if required.
+    if auth_required:
+        _log.debug("Auth required for %s" % url)
+        if not user:
+            raise UsageError("authorization required; "
+                             "use auth(user, pass) first")
+        passwordMgr = _RedirectPasswordMgr()
+        authHandler = _DigestAuthHandler(passwordMgr)
+        authHandler.add_password("musicbrainz.org", (), user, password)
+        handlers.append(authHandler)
 
-	# Add credentials if required.
-	if auth_required:
-		_log.debug("Auth required for %s" % url)
-		if not user:
-			raise UsageError("authorization required; "
-							 "use auth(user, pass) first")
-		passwordMgr = _RedirectPasswordMgr()
-		authHandler = _DigestAuthHandler(passwordMgr)
-		authHandler.add_password("musicbrainz.org", (), user, password)
-		handlers.append(authHandler)
+    opener = compat.build_opener(*handlers)
 
-	opener = compat.build_opener(*handlers)
+    # Make request.
+    req = _MusicbrainzHttpRequest(method, url, data)
+    req.add_header('User-Agent', useragent if useragent else _useragent)
+    _log.debug("requesting with UA %s" % _useragent)
+    if body:
+        req.add_header('Content-Type', 'application/xml; charset=UTF-8')
+    elif not data and not req.has_header('Content-Length'):
+        # Explicitly indicate zero content length if no request data
+        # will be sent (avoids HTTP 411 error).
+        req.add_header('Content-Length', '0')
+    resp = _safe_read(opener, req, body)
 
-	# Make request.
-	req = _MusicbrainzHttpRequest(method, url, data)
-	req.add_header('User-Agent', _useragent)
-	_log.debug("requesting with UA %s" % _useragent)
-	if body:
-		req.add_header('Content-Type', 'application/xml; charset=UTF-8')
-	elif not data and not req.has_header('Content-Length'):
-		# Explicitly indicate zero content length if no request data
-		# will be sent (avoids HTTP 411 error).
-		req.add_header('Content-Length', '0')
-	resp = _safe_read(opener, req, body)
-
-	# Parse the response.
-	try:
-		return mbxml.parse_message(resp)
-	except UnicodeError as exc:
-		raise ResponseError(cause=exc)
-	except Exception as exc:
-		if isinstance(exc, ETREE_EXCEPTIONS):
-			raise ResponseError(cause=exc)
-		else:
-			raise
+    # Parse the response.
+    try:
+        return mbxml.parse_message(resp)
+    except UnicodeError as exc:
+        raise ResponseError(cause=exc)
+    except Exception as exc:
+        if isinstance(exc, ETREE_EXCEPTIONS):
+            raise ResponseError(cause=exc)
+        else:
+            raise
 
 def _is_auth_required(entity, includes):
-	""" Some calls require authentication. This returns
-	True if a call does, False otherwise
-	"""
-	if "user-tags" in includes or "user-ratings" in includes:
-		return True
-	elif entity.startswith("collection"):
-		return True
-	else:
-		return False
+    """ Some calls require authentication. This returns
+    True if a call does, False otherwise
+    """
+    if "user-tags" in includes or "user-ratings" in includes:
+        return True
+    elif entity.startswith("collection"):
+        return True
+    else:
+        return False
 
-def _do_mb_query(entity, id, includes=[], params={}):
-	"""Make a single GET call to the MusicBrainz XML API. `entity` is a
-	string indicated the type of object to be retrieved. The id may be
-	empty, in which case the query is a search. `includes` is a list
-	of strings that must be valid includes for the entity type. `params`
-	is a dictionary of additional parameters for the API call. The
-	response is parsed and returned.
-	"""
-	# Build arguments.
-	if not isinstance(includes, list):
-		includes = [includes]
-	_check_includes(entity, includes)
-	auth_required = _is_auth_required(entity, includes)
-	args = dict(params)
-	if len(includes) > 0:
-		inc = " ".join(includes)
-		args["inc"] = inc
+def _do_mb_query(entity, id, includes=[], params={}, client=None, hostname=None, useragent=None):
+    """Make a single GET call to the MusicBrainz XML API. `entity` is a
+    string indicated the type of object to be retrieved. The id may be
+    empty, in which case the query is a search. `includes` is a list
+    of strings that must be valid includes for the entity type. `params`
+    is a dictionary of additional parameters for the API call. The
+    response is parsed and returned.
+    """
+    # Build arguments.
+    if not isinstance(includes, list):
+        includes = [includes]
+    _check_includes(entity, includes)
+    auth_required = _is_auth_required(entity, includes)
+    args = dict(params)
+    if len(includes) > 0:
+        inc = " ".join(includes)
+        args["inc"] = inc
 
-	# Build the endpoint components.
-	path = '%s/%s' % (entity, id)
-	return _mb_request(path, 'GET', auth_required, args=args)
+    # Build the endpoint components.
+    path = '%s/%s' % (entity, id)
+    return _mb_request(path, 'GET', auth_required, args=args,
+        client=client if client else _client,
+        hostname=hostname if hostname else _hostname,
+        useragent=useragent if useragent else _useragent)
 
 def _do_mb_search(entity, query='', fields={},
-		  limit=None, offset=None, strict=False):
-	"""Perform a full-text search on the MusicBrainz search server.
-	`query` is a lucene query string when no fields are set,
-	but is escaped when any fields are given. `fields` is a dictionary
-	of key/value query parameters. They keys in `fields` must be valid
-	for the given entity type.
-	"""
-	# Encode the query terms as a Lucene query string.
-	query_parts = []
-	if query:
-		clean_query = util._unicode(query)
-		if fields:
-			clean_query = re.sub(r'([+\-&|!(){}\[\]\^"~*?:\\])',
-					r'\\\1', clean_query)
-			if strict:
-				query_parts.append('"%s"' % clean_query)
-			else:
-				query_parts.append(clean_query.lower())
-		else:
-			query_parts.append(clean_query)
-	for key, value in fields.items():
-		# Ensure this is a valid search field.
-		if key not in VALID_SEARCH_FIELDS[entity]:
-			raise InvalidSearchFieldError(
-				'%s is not a valid search field for %s' % (key, entity)
-			)
+          limit=None, offset=None, strict=False,
+          client=None, hostname=None, useragent=None):
+    """Perform a full-text search on the MusicBrainz search server.
+    `query` is a lucene query string when no fields are set,
+    but is escaped when any fields are given. `fields` is a dictionary
+    of key/value query parameters. They keys in `fields` must be valid
+    for the given entity type.
+    """
+    # Encode the query terms as a Lucene query string.
+    query_parts = []
+    if query:
+        clean_query = util._unicode(query)
+        if fields:
+            clean_query = re.sub(r'([+\-&|!(){}\[\]\^"~*?:\\])',
+                    r'\\\1', clean_query)
+            if strict:
+                query_parts.append('"%s"' % clean_query)
+            else:
+                query_parts.append(clean_query.lower())
+        else:
+            query_parts.append(clean_query)
+    for key, value in fields.items():
+        # Ensure this is a valid search field.
+        if key not in VALID_SEARCH_FIELDS[entity]:
+            raise InvalidSearchFieldError(
+                '%s is not a valid search field for %s' % (key, entity)
+            )
 
-		# Escape Lucene's special characters.
-		value = util._unicode(value)
-		value = re.sub(r'([+\-&|!(){}\[\]\^"~*?:\\\/])', r'\\\1', value)
-		if value:
-			if strict:
-				query_parts.append('%s:"%s"' % (key, value))
-			else:
-				value = value.lower() # avoid AND / OR
-				query_parts.append('%s:(%s)' % (key, value))
-	if strict:
-		full_query = ' AND '.join(query_parts).strip()
-	else:
-		full_query = ' '.join(query_parts).strip()
+        # Escape Lucene's special characters.
+        value = util._unicode(value)
+        value = re.sub(r'([+\-&|!(){}\[\]\^"~*?:\\\/])', r'\\\1', value)
+        if value:
+            if strict:
+                query_parts.append('%s:"%s"' % (key, value))
+            else:
+                value = value.lower() # avoid AND / OR
+                query_parts.append('%s:(%s)' % (key, value))
+    if strict:
+        full_query = ' AND '.join(query_parts).strip()
+    else:
+        full_query = ' '.join(query_parts).strip()
 
-	if not full_query:
-		raise ValueError('at least one query term is required')
+    if not full_query:
+        raise ValueError('at least one query term is required')
 
-	# Additional parameters to the search.
-	params = {'query': full_query}
-	if limit:
-		params['limit'] = str(limit)
-	if offset:
-		params['offset'] = str(offset)
+    # Additional parameters to the search.
+    params = {'query': full_query}
+    if limit:
+        params['limit'] = str(limit)
+    if offset:
+        params['offset'] = str(offset)
 
-	return _do_mb_query(entity, '', [], params)
+    return _do_mb_query(entity, '', [], params,
+        client=client if client else _client,
+        hostname=hostname if hostname else _hostname,
+        useragent=useragent if useragent else _useragent)
 
 def _do_mb_delete(path):
-	"""Send a DELETE request for the specified object.
-	"""
-	return _mb_request(path, 'DELETE', True, True)
+    """Send a DELETE request for the specified object.
+    """
+    return _mb_request(path, 'DELETE', True, True)
 
 def _do_mb_put(path):
-	"""Send a PUT request for the specified object.
-	"""
-	return _mb_request(path, 'PUT', True, True)
+    """Send a PUT request for the specified object.
+    """
+    return _mb_request(path, 'PUT', True, True)
 
 def _do_mb_post(path, body):
-	"""Perform a single POST call for an endpoint with a specified
-	request body.
-	"""
-	return _mb_request(path, 'POST', True, True, body=body)
+    """Perform a single POST call for an endpoint with a specified
+    request body.
+    """
+    return _mb_request(path, 'POST', True, True, body=body)
 
 
 # The main interface!
@@ -781,7 +787,7 @@ def search_releases(query='', limit=None, offset=None, strict=False, **fields):
 
 @_docstring('release-group')
 def search_release_groups(query='', limit=None, offset=None,
-			  strict=False, **fields):
+              strict=False, **fields):
     """Search for release groups and return a dict
     with a 'release-group-list' key.
 
